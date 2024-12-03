@@ -1,4 +1,4 @@
-const express = require('express');
+/*const express = require('express');
 
 const app = express();
 
@@ -9,7 +9,7 @@ const app = express();
    console.log(req.query);
     res.send("get user");
   }); */
-  app.get("/user/:userid/:password",(req, res) => {
+ /* app.get("/user/:userid/:password",(req, res) => {
     console.log(req.params);
      res.send("get user");
    });
@@ -27,7 +27,7 @@ app.use("/t(es)?t",(req, res) => {
 /* app.use("/test",(req, res) => {
     res.send("Hello from server1");
   }); */
-  app.use("/hello/2",(req, res) => {
+ /* app.use("/hello/2",(req, res) => {
     res.send("Hello2");
   });
   app.use("/hello",(req, res) => {
@@ -37,6 +37,44 @@ app.use("/t(es)?t",(req, res) => {
 /*   app.use("/",(req, res) => {
     res.send("Hello from server");
   }); */
+/*app.listen(7777, () =>{ 
+    console.log("server is successfully listening on port 7777");
+});*/
+
+const express = require('express');
+
+const app = express();
+const {adminAuth} = require('./middleware/auth');
+app.use("/user",
+   [ (req,res, next) => {
+    console.log("Handlinf the route user");
+    next();
+   // res.send("Response");
+},
+(req,res, next) => {
+    console.log("Handling the route user2");
+    //res.send("2nd response");
+    next();
+},
+(req,res, next) => {
+  console.log("Handling the route user2");
+  //res.send("3rd response");
+  next();
+}],
+(req,res, next) => {
+  console.log("Handling the route user2");
+  res.send("4th response");
+ // next();
+});
 app.listen(7777, () =>{
     console.log("server is successfully listening on port 7777");
+});
+
+app.use("/admin",adminAuth,(req,res,next)=>{
+  console.log("test");
+  next();
+});
+
+app.get("/admin/User",(req,res)=> {
+  res.send("adminuser");
 });
