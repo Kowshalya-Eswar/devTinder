@@ -78,3 +78,18 @@ app.use("/admin",adminAuth,(req,res,next)=>{
 app.get("/admin/User",(req,res)=> {
   res.send("adminuser");
 });
+app.use("/userError",(req,res)=> {
+ /* try {
+    throw newError("test");
+  } catch (e) {
+    res.status(500).send("something went wrong1");
+  }*/
+  //res.send("rr");
+  throw newError("test");
+});
+app.use("/",(err,req,res,next)=> {
+  if(err) {
+    res.status(500).send("something went wrong");
+  }
+});
+
