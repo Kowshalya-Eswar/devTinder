@@ -41,55 +41,38 @@ app.use("/t(es)?t",(req, res) => {
     console.log("server is successfully listening on port 7777");
 });*/
 
+const mongoose = require("mongoose");
+
 const express = require('express');
 
+const User = require("./models/user");
 const app = express();
-const {adminAuth} = require('./middleware/auth');
-app.use("/user",
-   [ (req,res, next) => {
-    console.log("Handlinf the route user");
-    next();
-   // res.send("Response");
-},
-(req,res, next) => {
-    console.log("Handling the route user2");
-    //res.send("2nd response");
-    next();
-},
-(req,res, next) => {
-  console.log("Handling the route user2");
-  //res.send("3rd response");
-  next();
-}],
-(req,res, next) => {
-  console.log("Handling the route user2");
-  res.send("4th response");
- // next();
-});
-app.listen(7777, () =>{
-    console.log("server is successfully listening on port 7777");
+
+const connectDB = async () => {
+  await mongoose.connect("mongodb+srv://kowsiganeshan:test123@cluster0.wsbnn.mongodb.net/devTinder");
+};
+
+connectDB()
+.then(() => {
+  console.log("database connected");
+  app.listen(7777, () =>{
+      console.log("server is successfully listening on port 7777");
+  });    
+})
+.catch((err) => {
+  console.log("database not connected");
 });
 
-app.use("/admin",adminAuth,(req,res,next)=>{
-  console.log("test");
-  next();
-});
+app.post("/signup", async (req,res) => {
+  const UserObj = req.body;
 
-app.get("/admin/User",(req,res)=> {
-  res.send("adminuser");
-});
-app.use("/userError",(req,res)=> {
- /* try {
-    throw newError("test");
-  } catch (e) {
-    res.status(500).send("something went wrong1");
-  }*/
-  //res.send("rr");
-  throw newError("test");
-});
-app.use("/",(err,req,res,next)=> {
-  if(err) {
-    res.status(500).send("something went wrong");
+  const user = new User(UserObj);
+  try {
+    await user.save();
+    res.send("User Added successfully");
+  } catch(err) {
+    res.status(400).send("error saving user:"+ err.message);
   }
-});
+
+})
 
