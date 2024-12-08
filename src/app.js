@@ -62,10 +62,11 @@ connectDB()
 .catch((err) => {
   console.log("database not connected");
 });
-
+app.use(express.json()); //run for every requests, converts the requests to js object 
 app.post("/signup", async (req,res) => {
+  //create new instance of user modal
   const UserObj = req.body;
-
+  console.log(UserObj);
   const user = new User(UserObj);
   try {
     await user.save();
@@ -76,3 +77,58 @@ app.post("/signup", async (req,res) => {
 
 })
 
+app.post("/user", async(req,res) => {
+
+  try {
+    const userEmail = req.body.emailId;
+    console.log(userEmail);
+    const user = await User.findOne({emailId:userEmail});
+    if(!user) {
+      res.status(404).send('user not found');
+    } else {
+      res.send(user);
+    }
+  } catch(err) {
+    res.status(400).send('something went wrong..' +err.message);
+  }
+});
+
+//Feed API - GET /feed - get all the data
+app.get("/feed", async(req,res) => {
+  
+  try {
+    const user = await User.find({});
+      res.send(user);
+    }
+  catch(err) {
+    res.status(400).send('something went wrong..' +err.message);
+  }
+});
+
+app.delete('/deleteUser', async(req,res) => {
+  try {
+    const userId = req.body.userId;
+    const id = await User.findByIdAndDelete({_id:userId});
+    //const id = await User.findByIdAndDelete(userId); //same as above
+    res.send("user deleted successfully");
+  }  catch(err) {
+    res.status(400).send('something went wrong..' +err.message);
+  }
+})
+
+app.patch('/updateUser',async(req,res)=>{
+  try {
+    const emailId = req.body.emailId;
+    data = req.body;
+   /* userbefore = await User.findByIdAndUpdate({_id: userId},data, {
+      returnDocument: "before"
+    });*/
+    userbefore = await User.findOneAndUpdate({emailId: emailId},data, {
+      returnDocument: "before"
+    });
+    console.log(userbefore);
+    res.send("user updated successfully");
+  } catch(err) {
+    res.status(400).send('something went wrong..' +err.message);
+  }
+})
