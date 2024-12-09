@@ -66,7 +66,7 @@ app.use(express.json()); //run for every requests, converts the requests to js o
 app.post("/signup", async (req,res) => {
   //create new instance of user modal
   const UserObj = req.body;
-  console.log(UserObj);
+ // console.log(UserObj);
   const user = new User(UserObj);
   try {
     await user.save();
@@ -124,7 +124,8 @@ app.patch('/updateUser',async(req,res)=>{
       returnDocument: "before"
     });*/
     userbefore = await User.findOneAndUpdate({emailId: emailId},data, {
-      returnDocument: "before"
+      returnDocument: "before",
+      runValidators:true
     });
     console.log(userbefore);
     res.send("user updated successfully");
