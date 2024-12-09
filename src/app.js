@@ -47,7 +47,8 @@ const express = require('express');
 
 const User = require("./models/user");
 const app = express();
-
+const {validateData} = require('./utils/validation');
+const bcrypt = require('bcrypt');
 const connectDB = async () => {
   await mongoose.connect("mongodb+srv://kowsiganeshan:test123@cluster0.wsbnn.mongodb.net/devTinder");
 };
@@ -66,9 +67,22 @@ app.use(express.json()); //run for every requests, converts the requests to js o
 app.post("/signup", async (req,res) => {
   //create new instance of user modal
   const UserObj = req.body;
+  const {firstName, lastName, gender, emailId, password, age} = req.body;
  // console.log(UserObj);
   const user = new User(UserObj);
+  
   try {
+    validateData(UserObj);
+    const passwordHash = await bcrypt.hash(password,10);
+    console.log(passwordHash);
+    const user = new User({
+      firstName,
+      lastName,
+      gender,
+      emailId,
+      age,
+      password: passwordHash
+    });
     await user.save();
     res.send("User Added successfully");
   } catch(err) {
@@ -143,3 +157,24 @@ app.patch('/updateUser/:emailId',async(req,res)=>{
     res.status(400).send('something went wrong..' +err.message);
   }
 })
+
+app.post("/login", async(req,res) => {
+  const {emailId, password} = req.body;
+
+  try {
+
+      const user = await User.findOne({emailId: emailId});
+      if (!user) {
+        throw new Error('Invalid credentials');
+      }
+      const isPasswordValid = await bcrypt.compare(password,user.password)
+      if (!isPasswordValid) {
+        throw new Error('Invalid credentials');
+      } else {
+        res.send("Login succesfull");
+      }
+    }
+  catch(err) {
+    res.status(400).send('something went wrong..' +err.message);
+  }
+});
