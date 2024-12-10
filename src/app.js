@@ -47,7 +47,10 @@ const express = require('express');
 
 const User = require("./models/user");
 const app = express();
+const cookieParser = require("cookie-parser");
+const jwttoken = require("jsonwebtoken");
 const {validateData} = require('./utils/validation');
+const {userAuth} = require('./middleware/auth');
 const bcrypt = require('bcrypt');
 const connectDB = async () => {
   await mongoose.connect("mongodb+srv://kowsiganeshan:test123@cluster0.wsbnn.mongodb.net/devTinder");
@@ -64,6 +67,7 @@ connectDB()
   console.log("database not connected");
 });
 app.use(express.json()); //run for every requests, converts the requests to js object 
+app.use(cookieParser());
 app.post("/signup", async (req,res) => {
   //create new instance of user modal
   const UserObj = req.body;
@@ -169,12 +173,30 @@ app.post("/login", async(req,res) => {
       }
       const isPasswordValid = await bcrypt.compare(password,user.password)
       if (!isPasswordValid) {
+       
         throw new Error('Invalid credentials');
       } else {
+        const token = await jwttoken.sign({userid: user._id},"234@#",{expiresIn : "1h"});
+        res.cookie("token",token, {expires: new Date(Date.now() +8 * 360000)} );
         res.send("Login succesfull");
       }
     }
   catch(err) {
     res.status(400).send('something went wrong..' +err.message);
   }
+});
+
+app.post("/profile", userAuth, async(req,res) => {
+ 
+  try {
+      const user = req.user
+      res.send(user);
+  }
+  catch(err) {
+    res.status(400).send('something went wrong..' +err.message);
+  }
+});
+
+app.post("/sendingConnectionRequest", userAuth, async(req,res) => {
+   res.send(req.user.firstName+ " sending connection request");
 });
