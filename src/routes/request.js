@@ -1,60 +1,40 @@
 const express = require('express');
 const requestRouter = express.Router();
 const User = require("../models/user");
+const ConnectionRequest = require("../models/ConnectionRequest");
 const {userAuth} = require('../middleware/auth');
-requestRouter.post("/sendingConnectionRequest", userAuth, async(req,res) => {
-    res.send(req.user.firstName+ " sending connection request");
+
+requestRouter.post("/request/send/:status/:toUserId", userAuth, async(req,res) => {
+    try {
+        const toUserId = req.params.toUserId;
+        const fromUserId = req.user._id;
+        const status = req.params.status;
+        const toUser = await User.findById(toUserId);
+        if(!toUser) {
+            throw new Error("user not found");
+        }
+        const isAllowedStatus = ["ignored","interested"].includes(status);
+        if(!isAllowedStatus) {
+            throw new Error("not a valid status");
+        }
+        const existingConnectionRequest = await ConnectionRequest.findOne({
+            $or:
+            [
+                {fromUserId, toUserId},
+                {fromUserId: toUserId, toUserId: fromUserId}
+            ]
+        })
+
+        if(existingConnectionRequest) {
+            throw new Error("Already connection exists");
+        }
+        const connectionData = new ConnectionRequest({fromUserId: fromUserId, toUserId: toUserId, status:status});
+        await connectionData.save();
+        res.send(req.user.firstName+ " sending connection request to " + toUser.firstName);
+    } catch (err) {
+        res.status(404).send("Error:"+err.message);
+    }
 });
 
-//Feed API - GET /feed - get all the data
-requestRouter.get("/feed", async(req,res) => {
-
-try {
-    const user = await User.find({});
-    res.send(user);
-    }
-catch(err) {
-    res.status(400).send('something went wrong..' +err.message);
-}
-});
-
-requestRouter.delete('/deleteUser', async(req,res) => {
-try {
-    const userId = req.body.userId;
-    const id = await User.findByIdAndDelete({_id:userId});
-    //const id = await User.findByIdAndDelete(userId); //same as above
-    res.send("user deleted successfully");
-}  catch(err) {
-    res.status(400).send('something went wrong..' +err.message);
-}
-})
-
-requestRouter.patch('/updateUser/:emailId',async(req,res)=>{
-try {
-    const emailId = req.params?.emailId;
-    data = req.body;
-    const ALLOWED_UPDATES = ['userId','photoURL','gender','skills','age'];
-    const isUpdateAllowed = Object.keys(data).every((k) => 
-    ALLOWED_UPDATES.includes(k)
-    );
-    if(!isUpdateAllowed) {
-    throw new Error("update not allowed");
-    }
-    if(data?.skills.length() > 10) {
-    throw new Error("skills should not greater than 10");
-    }
-    /* userbefore = await User.findByIdAndUpdate({_id: userId},data, {
-    returnDocument: "before"
-    });*/
-    userbefore = await User.findOneAndUpdate({emailId: emailId},data, {
-    returnDocument: "before",
-    runValidators:true
-    });
-    console.log(userbefore);
-    res.send("user updated successfully");
-} catch(err) {
-    res.status(400).send('something went wrong..' +err.message);
-}
-})
 module.exports = requestRouter;
 
