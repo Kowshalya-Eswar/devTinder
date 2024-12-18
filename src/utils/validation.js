@@ -13,5 +13,19 @@ const validateData = (req) => {
         throw new Error("not valid gender");
     } 
 };
+const validateEditData = (req) => {
+  const validFields = ["age","gender","about","photoURL","firstName","lastName","skills"];
+  const isValidEditData = Object.keys(req).every((key) => validFields.includes(key));
+  return isValidEditData; 
+}
 
-module.exports = {validateData}
+const validatePassword = (req) => {
+    const {password} = req;
+    if(password){
+        if(validator.isStrongPassword(password)) {
+            return true;
+        }
+    }
+    return false;
+}
+module.exports = {validateData, validateEditData, validatePassword}
