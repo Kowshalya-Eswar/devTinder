@@ -14,7 +14,7 @@ const userSchema  = new mongoose.Schema({
     },
     emailId: {
         type: String,
-        unique: true,
+        unique: true, //indirect way of indexing
         required: true,
         trim:true,
         validate(value) {
