@@ -3,18 +3,48 @@ const userRouter = new express.Router();
 const User = require("../models/user");
 const ConnectionRequest = require("../models/ConnectionRequest");
 const {userAuth} = require("../middleware/auth");
-const { connect } = require('mongoose');
+const { connect, connection } = require('mongoose');
 //Feed API - GET /feed - get all the data
-userRouter.get("/feed", async(req,res) => {
-
+userRouter.get("/feed", userAuth, async(req,res) => {
+    const USER_SAFE_COLUMNS = "firstName lastName age skills photoURLdescription";
     try {
-        const user = await User.find({});
-        res.send(user);
-        }
+        let limit = parseInt(req.query.limit) || 10
+        const page = parseInt(req.query.page) || 1
+       
+        limit = limit > 50 ? 50 : limit
+        const skip = (page - 1)*limit;
+        console.log(limit);
+        console.log(page);
+        const userLoggedIn = req.user;
+        const connectionRequests = await ConnectionRequest.find({
+            $or:[
+                {fromUserId:userLoggedIn._id},
+                { toUserId:userLoggedIn._id},
+            ]
+        })
+        .select("fromUserId toUserId")
+        .populate('fromUserId',USER_SAFE_COLUMNS)
+        .populate('toUserId',USER_SAFE_COLUMNS);
+
+        var hideUsers = new Set();
+        connectionRequests.forEach(req => {
+            hideUsers.add(req.fromUserId._id.toString());  // Add fromUserId to the Set
+            hideUsers.add(req.toUserId._id.toString());    // Add toUserId to the Set
+        });
+
+        console.log(hideUsers);
+        const usersCards = await User.find({
+            $and:[
+                {_id: {$nin: Array.from(hideUsers)}},
+                {_id: {$ne:userLoggedIn._id}}
+            ]
+        }).select(USER_SAFE_COLUMNS).skip(skip).limit(limit)
+        res.send(usersCards);
+    }
     catch(err) {
         res.status(400).send('something went wrong..' +err.message);
     }
-    });
+});
     
     userRouter.delete('/deleteUser', async(req,res) => {
     try {
@@ -109,5 +139,7 @@ userRouter.get("/feed", async(req,res) => {
             res.status(400).send('something went wrong..' +error.message);
         }
     });
+
+    userRouter.get('/feed',)
 
     module.exports = userRouter;

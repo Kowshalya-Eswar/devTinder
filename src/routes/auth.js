@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt');
 authRouter.post("/signup", async (req,res) => {
     //create new instance of user modal
     const UserObj = req.body;
-    const {firstName, lastName, gender, emailId, password, age} = req.body;
+    const {firstName, lastName, gender, emailId, password, age, description,skills} = req.body;
    // console.log(UserObj);
     const user = new User(UserObj);
     
@@ -21,6 +21,8 @@ authRouter.post("/signup", async (req,res) => {
         gender,
         emailId,
         age,
+        skills,
+        description,
         password: passwordHash
       });
       await user.save();
