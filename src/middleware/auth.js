@@ -15,7 +15,7 @@ const userAuth = async (req,res,next) => {
     try {
         const {token} = req.cookies;
         if(!token) {
-            throw new Error("Token not found");
+           return res.status(401).send("User not authorized");
         }
         const parsedToken = await jwt.verify(token,"234@#");
         const {userid} = parsedToken;
