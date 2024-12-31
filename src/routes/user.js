@@ -6,7 +6,7 @@ const {userAuth} = require("../middleware/auth");
 const { connect, connection } = require('mongoose');
 //Feed API - GET /feed - get all the data
 userRouter.get("/feed", userAuth, async(req,res) => {
-    const USER_SAFE_COLUMNS = "firstName lastName age skills photoURLdescription";
+    const USER_SAFE_COLUMNS = "firstName lastName age gender skills photoURL description";
     try {
         let limit = parseInt(req.query.limit) || 10
         const page = parseInt(req.query.page) || 1

@@ -14,7 +14,7 @@ const validateData = (req) => {
     } 
 };
 const validateEditData = (req) => {
-  const validFields = ["age","gender","about","photoURL","firstName","lastName","skills"];
+  const validFields = ["age","gender","about","photoURL","firstName","lastName","skills","description"];
   const isValidEditData = Object.keys(req).every((key) => validFields.includes(key));
   return isValidEditData; 
 }
