@@ -93,7 +93,7 @@ userRouter.get("/feed", userAuth, async(req,res) => {
                 status: "interested"
             })
             //.populate("fromUserId",["firstName","lastName"]);
-            .populate("fromUserId","firstName lastName photoURL");
+            .populate("fromUserId","firstName lastName photoURL age gender description");
             if(!connectionRequests) {
                 return res.status(400).send("No pending connections");
             } 
