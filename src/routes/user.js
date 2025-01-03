@@ -121,8 +121,8 @@ userRouter.get("/feed", userAuth, async(req,res) => {
             })
                
             //.populate("fromUserId",["firstName","lastName"]);
-            .populate("fromUserId","firstName lastName photoURL")
-            .populate("toUserId","firstName lastName photoURL");
+            .populate("fromUserId","firstName lastName photoURL gender age description")
+            .populate("toUserId","firstName lastName photoURL gender age description");
             if(!connectionRequests) {
                 return res.status(400).send("No connections");
             } 
