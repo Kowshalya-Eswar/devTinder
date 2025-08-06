@@ -40,7 +40,7 @@ app.use("/t(es)?t",(req, res) => {
 /*app.listen(7777, () =>{ 
     console.log("server is successfully listening on port 7777");
 });*/
-
+require('dotenv').config();
 const mongoose = require("mongoose");
 const express = require('express');
 const cors = require("cors");
@@ -55,7 +55,7 @@ app.use(cors({
 })
 );
 const connectDB = async () => {
-  await mongoose.connect("mongodb+srv://kowsiganeshan:test123@cluster0.wsbnn.mongodb.net/devTinder");
+  await mongoose.connect(process.env.DB_URL);
 };
 app.use(express.json()); //run for every requests, converts the requests to js object 
 app.use(cookieParser());
