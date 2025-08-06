@@ -44,9 +44,10 @@ app.use("/t(es)?t",(req, res) => {
 const mongoose = require("mongoose");
 const express = require('express');
 const cors = require("cors");
-
+const http = require("http");
 const cookieParser = require("cookie-parser");
 const app = express();
+const initializeSocket = require("./utils/socket")
 //app.use(cors());
 app.use(cors({
   origin:"http://localhost:5173",
@@ -68,10 +69,12 @@ app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
 app.use("/", userRouter);
+const server = http.createServer(app);
+initializeSocket(server);
 connectDB()
 .then(() => {
   console.log("database connected");
-  app.listen(7777, () =>{
+  server.listen(7777, () =>{
       console.log("server is successfully listening on port 7777");
   });    
 })

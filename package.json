@@ -22,6 +22,15 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.8.4",
     "nodemon": "^3.1.7",
+    "socket.io": "^4.8.1",
     "validator": "^13.12.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kowshalya-Eswar/devTinder.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Kowshalya-Eswar/devTinder/issues"
+  },
+  "homepage": "https://github.com/Kowshalya-Eswar/devTinder#readme"
 }
