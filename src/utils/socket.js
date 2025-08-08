@@ -34,9 +34,10 @@ const initializeSocket = (server) => {
             socket.join(roomId);
             console.log(firstName + "joined"+roomId)
         })
-        socket.on("sendMessage",async({firstName, id, text})=>{
+        socket.on("sendMessage",async({text,senderId, id})=>{
+            let firstName = senderId.firstName;
             const roomId = [socket.user.userid, id].sort().join("_");
-            io.to(roomId).emit("messageReceived",{firstName, text})
+            io.to(roomId).emit("messageReceived",{text,senderId})
             console.log(firstName +":"+text);
             try {
                 let chat = await Chat.findOne({'participants': {$all:[socket.user.userid,id]}});
